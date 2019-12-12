@@ -2,6 +2,7 @@ package com.song.selector;
 
 public class NaverSearchSelector implements Selector{
 	
+	
 	private String priceSelector = "#content > div > div.summary_cet > div.price_area > span > em";
 	private String itemNameSelector = "#container > div.summary_area > div.summary_info._itemSection > div > div.h_area > h2";
 	
