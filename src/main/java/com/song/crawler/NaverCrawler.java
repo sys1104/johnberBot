@@ -18,6 +18,7 @@ public class NaverCrawler {
 		try {
 			SelectorFactory factory = new SelectorFactory();
 			Selector selector = factory.createSelector(url);
+			System.out.println("selectorName : " + selector.getClass().getName());
 			String priceSelector = selector.getPriceSelector();
 			String itemNameSelector = selector.getItemNameSelector();
 			Document doc = Jsoup.connect(url).get();
