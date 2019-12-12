@@ -78,21 +78,25 @@ public class MyAmazingBot extends TelegramLongPollingBot {
             	
             	String url = arg0.getMessage().getText();
             	itemInfoMap = naverCrawler.getItemInfoMap(url);
-            	String itemPrice = itemInfoMap.get("itemPrice");
-            	itemPrice = itemPrice.replace(",","");
-            	itemInfoMap.remove("itemPrice");
-            	itemInfoMap.put("itemPrice", itemPrice);
-            	itemInfoMap.put("chatId", this.chatId);
-            	itemInfoMap.put("url", url);
-            	String itemName = itemInfoMap.get("itemName");
-            	
-            	try {
-					sendPostMap(itemInfoMap, "/regItem");
-					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + itemPrice);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+            	if (itemInfoMap.size() > 0) {
+                	String itemPrice = itemInfoMap.get("itemPrice");
+                	itemPrice = itemPrice.replace(",","");
+                	itemInfoMap.remove("itemPrice");
+                	itemInfoMap.put("itemPrice", itemPrice);
+                	itemInfoMap.put("chatId", this.chatId);
+                	itemInfoMap.put("url", url);
+                	String itemName = itemInfoMap.get("itemName");
+                	
+                	try {
+    					sendPostMap(itemInfoMap, "/regItem");
+    					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + itemPrice);
+    				} catch (Exception e) {
+    					e.printStackTrace();
+    				}           		
+            	} else {
+            		sendMessage("상품정보 조회에 실패했습니다.");
+            	}
+
             	
         	}
 
