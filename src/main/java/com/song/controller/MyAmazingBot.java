@@ -19,6 +19,7 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import com.song.crawler.NaverCrawler;
+import com.song.utils.CommonUtils;
 
 @Service
 public class MyAmazingBot extends TelegramLongPollingBot {
@@ -89,7 +90,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 	
                 	try {
     					sendPostMap(itemInfoMap, "/regItem");
-    					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + itemPrice);
+    					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + CommonUtils.moneyCommaUtil(itemPrice));
     				} catch (Exception e) {
     					e.printStackTrace();
     				}           		

@@ -17,6 +17,7 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import com.song.crawler.NaverCrawler;
 import com.song.dao.JohnBerDao;
+import com.song.utils.CommonUtils;
 
 
 @Transactional
@@ -83,7 +84,8 @@ public class JohnBerBotService {
 		String itemPrice = map.get("itemPrice");
 		String oldPrice = map.get("oldPrice");
 		String itemName = map.get("itemName");
-		String message = "@@가격변동알림@@" + "\n상품명 : " + itemName + "\n이전가격 : " + oldPrice + "\n현재가격 : " + itemPrice;
+		String message = "@@가격변동알림@@" + "\n상품명 : " + itemName +
+				"\n이전가격 : " + CommonUtils.moneyCommaUtil(oldPrice) + "\n현재가격 : " + CommonUtils.moneyCommaUtil(itemPrice);
 		sendMessage(message, map.get("chatId"));
 		return dao.updatePrice(map);
 	}
