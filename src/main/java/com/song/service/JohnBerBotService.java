@@ -55,6 +55,7 @@ public class JohnBerBotService {
 	public List<HashMap<String, String>> getUpdateList() throws Exception {
 		List<HashMap<String, String>> wishList = getWishListAll();
 		List<HashMap<String, String>> updateList = new ArrayList<HashMap<String, String>>();
+		
 		for (HashMap<String, String> map : wishList) {
 			String url = map.get("URL");
 			String oldPrice = map.get("ITEM_PRICE");
@@ -65,12 +66,14 @@ public class JohnBerBotService {
 			String newPrice = itemInfo.get("itemPrice").replace(",", "");
 			itemInfo.remove("itemPrice");
 			itemInfo.put("itemPrice", newPrice);
+			
 			if (oldPrice.equals(newPrice)) {
 				continue;
 			} else {
 				System.out.println("updateListAdded : " + itemInfo.toString());
 				updateList.add(itemInfo);
 			}
+			
 		}
 		return updateList;
 	}
@@ -97,5 +100,5 @@ public class JohnBerBotService {
     	Message responseMessage = sendResponse.message();
     	//System.out.println( "responseMessage : " + responseMessage);
     	return String.valueOf(ok);
-    }	
+    }
 }
