@@ -2,7 +2,7 @@ package com.song.selector;
 
 public class MobileNaverSearchSelector implements Selector{
 	
-	private String priceSelector = "#root > div > div.nxKO8SM2-b > div._1gv7l8EHt9 > em";
+	private String priceSelector = "#root > div > div.nxKO8SM2-b > div > em";
 	private String itemNameSelector = "#root > div > div.nxKO8SM2-b > h2";
 	
 	@Override
@@ -25,7 +25,5 @@ public class MobileNaverSearchSelector implements Selector{
 		return "MobileNaverSearchSelector [priceSelector=" + priceSelector + ", itemNameSelector=" + itemNameSelector
 				+ "]";
 	}
-	
-	
 	
 }
