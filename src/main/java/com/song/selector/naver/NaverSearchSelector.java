@@ -1,4 +1,6 @@
-package com.song.selector;
+package com.song.selector.naver;
+
+import com.song.selector.Selector;
 
 public class NaverSearchSelector implements Selector{
 	

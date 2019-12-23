@@ -1,9 +1,11 @@
-package com.song.selector;
+package com.song.selector.naver;
 
-public class NaverShoppingSelector implements Selector{
+import com.song.selector.Selector;
+
+public class NaverSmartStoreSelector implements Selector{
 	
-	private String priceSelector = "#content > div._2-I30XS1lA > div._29bBAzpH0u > fieldset > div._28YSyWTW-S > div > div > strong > span._7bB3O2y55c";
-	private String itemNameSelector = "#content > div._2-I30XS1lA > div._29bBAzpH0u > fieldset > div._28YSyWTW-S > h3";
+	private String priceSelector = "#wrap > div > div.prd_detail_basic > div.info > form > fieldset > div._copyable > dl > dd > div.area_cost > strong > span.thm";
+	private String itemNameSelector = "#wrap > div > div.prd_detail_basic > div.info > form > fieldset > div._copyable > dl > dt > strong";
 	
 	public String getPriceSelector() {
 		return priceSelector;
