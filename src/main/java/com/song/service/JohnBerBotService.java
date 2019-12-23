@@ -62,7 +62,7 @@ public class JohnBerBotService {
 			HashMap<String, Object> itemInfo = crawler.getItemInfoMap(url);
 			itemInfo.put("chatId", chatId);
 			itemInfo.put("oldPrice", oldPrice);
-			String newPrice = itemInfo.get("itemPrice").toString();
+			String newPrice = itemInfo.get("itemPrice").toString().replace(",", "");
 			itemInfo.remove("itemPrice");
 			itemInfo.put("itemPrice", newPrice);
 			itemInfo.put("url", url);
@@ -97,7 +97,6 @@ public class JohnBerBotService {
 		TelegramBot bot = new TelegramBot("952633662:AAGDJOld3g9M691pvvMM8ULmF7oRzYhkvR4");
 		SendMessage request = new SendMessage(chatId, message).parseMode(ParseMode.HTML).disableWebPagePreview(true)
 				.disableNotification(false);
-
 		SendResponse sendResponse = bot.execute(request);
 		boolean ok = sendResponse.isOk();
 		Message responseMessage = sendResponse.message();
