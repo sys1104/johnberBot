@@ -13,8 +13,10 @@ import com.song.selector.Selector;
 
 public class NaverCrawler {
 	
-	public HashMap<String, String> getItemInfoMap(String url) {
-		HashMap<String, String> itemInfo = new HashMap<>();
+	public HashMap<String, Object> getItemInfoMap(String url) {
+		HashMap<String, Object> itemInfo = new HashMap<>();
+		url = urlChanger(url);
+		System.out.println("Changed url : " + url);
 		try {
 			SelectorFactory factory = new SelectorFactory();
 			Selector selector = factory.createSelector(url);
@@ -39,4 +41,33 @@ public class NaverCrawler {
 		return itemInfo;
 	}
 	
+	public String urlChanger(String url) {
+ 		String nvMid = "";
+ 		int nvMidEndIdx = 0;
+		//msearch일 경우 상품코드 추출하여 pcURL로 변경
+		if (url.contains("msearch.shopping.naver")) {
+			StringBuilder sb = new StringBuilder();
+			//nvMid = 네이버 검색 상품코드 파라미터
+			int nvMidStartIdx = url.indexOf("catalog/");
+			//boolean isURLStartWithCatalog = nvMidStartIdx ? ;
+			if (nvMidStartIdx != -1) {
+				nvMidStartIdx = nvMidStartIdx + "catalog/".length();
+				nvMidEndIdx = url.indexOf("?");
+			} else if (nvMidStartIdx == -1) {
+				nvMidStartIdx = url.indexOf("nv_mid=");
+				if (nvMidStartIdx != -1) {
+					nvMidStartIdx = nvMidStartIdx + "nv_mid=".length();
+					nvMidEndIdx = url.indexOf("&query");
+				}
+			}
+			
+			nvMid = url.substring(nvMidStartIdx, nvMidEndIdx);
+			
+			url = "https://search.shopping.naver.com/detail/detail.nhn?nv_mid=";
+			sb.append(url);
+			sb.append(nvMid);
+			url = sb.toString();
+		}
+		return url;
+	}
 }
