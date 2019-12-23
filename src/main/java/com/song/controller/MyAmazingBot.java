@@ -27,9 +27,9 @@ public class MyAmazingBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update arg0) {
         // TODO
-//        System.out.println(arg0.getMessage().getFrom().getId()); //get ID 는 suer id
-    	System.out.println(arg0.getMessage().getFrom().getLastName()); //get ID 는 suer id
-        System.out.println(arg0.getMessage().getFrom().getFirstName()); //get ID 는 suer id
+//        System.out.println(arg0.getMessage().getFrom().getId()); //get ID 는 user id
+    	System.out.println(arg0.getMessage().getFrom().getLastName()); //get ID 는 user id
+        System.out.println(arg0.getMessage().getFrom().getFirstName()); //get ID 는 user id
         System.out.println(arg0.getMessage().getChatId());  // 채팅방의 ID
         System.out.println(arg0.getMessage().getText());  // 받은 TEXT
         this.chatId = String.valueOf(arg0.getMessage().getChatId());
@@ -41,7 +41,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         	sendMessage("사용자 등록 후 네이버 쇼핑의 특정상품 URL을 입력하면 자동으로 원하는 상품이 등록됩니다.");
         }
         if ("/누구".equals(arg0.getMessage().getText())) {
-        	sendMessage("@존버봇");
+        	sendMessage("@존버봇 - 가격 변동 알리미 ");
         }
         if ("/등록".equals(arg0.getMessage().getText())) {
     		
@@ -73,20 +73,20 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         	if ( !isRegistered() ) {
         		sendMessage("사용자 등록 후 상품 등록 가능합니다.");
         	} else {
-            	Map<String, String> itemInfoMap = new HashMap<>();
+            	Map<String, Object> itemInfoMap = new HashMap<>();
             	
             	NaverCrawler naverCrawler = new NaverCrawler();
             	
             	String url = arg0.getMessage().getText();
             	itemInfoMap = naverCrawler.getItemInfoMap(url);
             	if (itemInfoMap.size() > 0) {
-                	String itemPrice = itemInfoMap.get("itemPrice");
+                	String itemPrice = itemInfoMap.get("itemPrice").toString();
                 	itemPrice = itemPrice.replace(",","");
                 	itemInfoMap.remove("itemPrice");
                 	itemInfoMap.put("itemPrice", itemPrice);
                 	itemInfoMap.put("chatId", this.chatId);
                 	itemInfoMap.put("url", url);
-                	String itemName = itemInfoMap.get("itemName");
+                	String itemName = itemInfoMap.get("itemName").toString();
                 	
                 	try {
     					sendPostMap(itemInfoMap, "/regItem");
@@ -96,9 +96,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
     				}           		
             	} else {
             		sendMessage("상품정보 조회에 실패했습니다.");
-            	}
-
-            	
+            	}          	
         	}
 
         }
@@ -153,7 +151,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         in.close();
         return rtnData;
     }
-    public String sendPostMap(Map<String, String> itemInfoMap, String method) throws Exception {
+    public String sendPostMap(Map<String, Object> itemInfoMap, String method) throws Exception {
     	String rtnData = "";
     	String baseURL = "http://localhost:8080";
     	String URLMethod = method;
