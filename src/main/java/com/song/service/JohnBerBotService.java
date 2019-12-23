@@ -30,7 +30,6 @@ public class JohnBerBotService {
 		System.out.println("Service.getChatId");
 		return dao.getChatId(chatId);
 	}
-
 	public int regUser(String chatId) throws Exception {
 		return dao.regUser(chatId);
 	}
@@ -39,7 +38,7 @@ public class JohnBerBotService {
 		return dao.delUser(chatId);
 	}
 
-	public int regItem(Map<String, String> map) throws Exception {
+	public int regItem(HashMap<String, String> map) throws Exception {
 		return dao.regItem(map);
 	}
 
@@ -47,25 +46,26 @@ public class JohnBerBotService {
 		return dao.getPrice(map);
 	}
 
-	public List<HashMap<String, String>> getWishListAll() throws Exception {
+	public List<HashMap<String, Object>> getWishListAll() throws Exception {
 		return dao.getWishListAll();
 	}
 
 	// 가격변동 시 Update
-	public List<HashMap<String, String>> getUpdateList() throws Exception {
-		List<HashMap<String, String>> wishList = getWishListAll();
-		List<HashMap<String, String>> updateList = new ArrayList<HashMap<String, String>>();
+	public List<HashMap<String, Object>> getUpdateList() throws Exception {
+		List<HashMap<String, Object>> wishList = getWishListAll();
+		List<HashMap<String, Object>> updateList = new ArrayList<HashMap<String, Object>>();
 
-		for (HashMap<String, String> map : wishList) {
-			String url = map.get("URL");
-			String oldPrice = map.get("ITEM_PRICE");
-			String chatId = map.get("CHAT_ID");
-			HashMap<String, String> itemInfo = crawler.getItemInfoMap(url);
+		for (HashMap<String, Object> map : wishList) {
+			String url = map.get("URL").toString();
+			String oldPrice = map.get("ITEM_PRICE").toString();
+			String chatId = map.get("CHAT_ID").toString();
+			HashMap<String, Object> itemInfo = crawler.getItemInfoMap(url);
 			itemInfo.put("chatId", chatId);
 			itemInfo.put("oldPrice", oldPrice);
-			String newPrice = itemInfo.get("itemPrice").replace(",", "");
+			String newPrice = itemInfo.get("itemPrice").toString();
 			itemInfo.remove("itemPrice");
 			itemInfo.put("itemPrice", newPrice);
+			itemInfo.put("url", url);
 
 			if (oldPrice.equals(newPrice)) {
 				continue;
@@ -78,13 +78,18 @@ public class JohnBerBotService {
 	}
 
 	// 가격변동 시 Update 및 메시지 발송
-	public int updatePrice(HashMap<String, String> map) throws Exception {
-		String itemPrice = map.get("itemPrice");
-		String oldPrice = map.get("oldPrice");
-		String itemName = map.get("itemName");
-		String message = "@@가격변동알림@@" + "\n상품명 : " + itemName + "\n이전가격 : " + CommonUtils.moneyCommaUtil(oldPrice)
-				+ "\n현재가격 : " + CommonUtils.moneyCommaUtil(itemPrice);
-		sendMessage(message, map.get("chatId"));
+	public int updatePrice(HashMap<String, Object> map) throws Exception {
+		StringBuffer sb = new StringBuffer();
+		String itemPrice = map.get("itemPrice").toString().replace(",", "");
+		String oldPrice = map.get("oldPrice").toString();
+		String itemName = map.get("itemName").toString();
+		String url = map.get("url").toString();
+		sb.append("@@가격변동알림@@" + "\n상품명 : ").append(itemName)
+		   .append("\n이전가격 : ").append(CommonUtils.moneyCommaUtil(oldPrice))
+		   .append("\n현재가격 : ").append(CommonUtils.moneyCommaUtil(itemPrice))
+		   .append( "\n링크이동 : ").append(url);
+		String message = sb.toString();
+		sendMessage(message, map.get("chatId").toString());
 		return dao.updatePrice(map);
 	}
 
