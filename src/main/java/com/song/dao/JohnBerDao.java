@@ -14,13 +14,13 @@ public interface JohnBerDao {
 	
 	int getPrice(HashMap<String, String> map);
 	
-	List<HashMap<String, String>> getWishListAll();
+	List<HashMap<String, Object>> getWishListAll();
 	
-	int regItem(Map<String, String> map);
+	int regItem(HashMap<String, String> map);
 	
 	int regUser(String chatId);
 	
 	int delUser(String chatId);
 	
-	int updatePrice(HashMap<String, String> map);
+	int updatePrice(HashMap<String, Object> map);
 }
