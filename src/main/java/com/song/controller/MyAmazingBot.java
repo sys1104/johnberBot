@@ -85,7 +85,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 						sb.append("상품명 : ").append(jo.get("ITEM_NAME").getAsString()).append("\n");
 						sb.append("가격 : ").append(jo.get("ITEM_PRICE").getAsString()).append("\n");
 						sb.append("URL : ").append(jo.get("URL").getAsString()).append("\n");
-						sb.append("###########################################\n");
+						sb.append("#################################\n");
 					}
 					
 				}
