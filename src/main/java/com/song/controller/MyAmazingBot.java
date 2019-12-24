@@ -33,17 +33,17 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         System.out.println(arg0.getMessage().getChatId());  // 채팅방의 ID
         System.out.println(arg0.getMessage().getText());  // 받은 TEXT
         this.chatId = String.valueOf(arg0.getMessage().getChatId());
-        
-        if ("/start".equals(arg0.getMessage().getText())) {
+        String message = arg0.getMessage().getText();
+        if ("/start".equals(message)) {
         	sendMessage("안녕하세요 존버봇입니다.\n @@@명령어 목록@@@ \n/등록 : 자동으로 사용자 등록\n/누구 : 나는누구? \n/찜하기 : 상품등록방법 안내\n/탈퇴 : 탈퇴");
         }
-        if ("/찜하기".equals(arg0.getMessage().getText())) {
+        if ("/찜하기".equals(message)) {
         	sendMessage("사용자 등록 후 네이버 쇼핑의 특정상품 URL을 입력하면 자동으로 원하는 상품이 등록됩니다.");
         }
-        if ("/누구".equals(arg0.getMessage().getText())) {
+        if ("/누구".equals(message)) {
         	sendMessage("@존버봇 - 가격 변동 알리미 ");
         }
-        if ("/등록".equals(arg0.getMessage().getText())) {
+        if ("/등록".equals(message)) {
     		
     			if (isRegistered()) {
     				sendMessage("이미 등록된 사용자입니다.");
@@ -57,7 +57,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
     				sendMessage("사용자 등록완료되었습니다.");
     			}
         }
-        if ("/탈퇴".equals(arg0.getMessage().getText())) {
+        if ("/탈퇴".equals(message)) {
     		try {
     			if ( !isRegistered() ) {
     				sendMessage("사용자 정보가 존재하지 않습니다.");
@@ -69,7 +69,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 				e.printStackTrace();
 			}
         }
-        if (arg0.getMessage().getText().startsWith("http")) {
+        if (message.startsWith("http")) {
         	if ( !isRegistered() ) {
         		sendMessage("사용자 등록 후 상품 등록 가능합니다.");
         	} else {
@@ -77,7 +77,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
             	
             	NaverCrawler naverCrawler = new NaverCrawler();
             	
-            	String url = arg0.getMessage().getText();
+            	String url = message;
             	itemInfoMap = naverCrawler.getItemInfoMap(url);
             	if (itemInfoMap.size() > 0) {
                 	String itemPrice = itemInfoMap.get("itemPrice").toString();
