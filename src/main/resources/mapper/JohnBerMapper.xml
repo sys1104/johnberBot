@@ -36,6 +36,12 @@
 		  FROM WISH_LIST A
 	</select>
 
+	<select id="getWishListByID" parameterType="String" resultType="hashmap">
+		SELECT A.CHAT_ID, A.ITEM_NAME, A.ITEM_PRICE, A.URL
+		  FROM WISH_LIST A
+	    WHERE A.CHAT_ID = #{chatId}
+	</select>
+
 	<update id="updatePrice" parameterType="hashmap">
 	   UPDATE WISH_LIST 
 		    SET ITEM_PRICE = #{itemPrice}

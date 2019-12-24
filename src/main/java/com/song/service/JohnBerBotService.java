@@ -50,6 +50,10 @@ public class JohnBerBotService {
 		return dao.getWishListAll();
 	}
 
+	public List<HashMap<String, Object>> getWishListByID(String chatID) throws Exception {
+		return dao.getWishListByID(chatID);
+	}
+	
 	// 가격변동 시 Update
 	public List<HashMap<String, Object>> getUpdateList() throws Exception {
 		List<HashMap<String, Object>> wishList = getWishListAll();

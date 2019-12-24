@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
 import com.song.dao.JohnBerDao;
 import com.song.service.JohnBerBotService;
 
@@ -74,19 +75,28 @@ public class CrawlingController {
 			e.printStackTrace();
 		}
 	}
-	@RequestMapping("/getWishListAll")
-	public List<HashMap<String, Object>> getWishListAll() {
+	@RequestMapping("/getWishList")
+	public String getWishListAll(HttpServletRequest request) {
 		
+		String paramChatId = request.getParameter("chatId");
+		String wishListJson = "";
 		List<HashMap<String, Object>> itemList = new ArrayList<HashMap<String, Object>>();
 		try {
-			itemList = service.getWishListAll();
-			logger.debug(itemList.size() +  "건 " );
+			if ("".equals(paramChatId)) {
+				itemList = service.getWishListAll();
+			} else {
+				itemList = service.getWishListByID(paramChatId);
+			}
+			logger.debug(itemList.size() +  "건 ");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return itemList;
-	} 
+		
+		Gson gson = new Gson();
+		wishListJson = gson.toJson(itemList);
+		return wishListJson;
+	}
 	
 	@RequestMapping("/updatePrice")
 	//매 시간 12분마다
@@ -106,6 +116,7 @@ public class CrawlingController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}	
+	}
+	
 	
 }
