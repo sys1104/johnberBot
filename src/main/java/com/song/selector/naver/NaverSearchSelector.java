@@ -24,6 +24,6 @@ public class NaverSearchSelector implements Selector{
 	@Override
 	public String toString() {
 		return "NaverSearchSelector [priceSelector=" + priceSelector + ", itemNameSelector=" + itemNameSelector + "]";
-	}	
+	}
 	
 }

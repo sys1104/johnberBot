@@ -11,16 +11,19 @@ import org.jsoup.select.Elements;
 import com.song.factory.SelectorFactory;
 import com.song.selector.Selector;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class NaverCrawler {
 	
 	public HashMap<String, Object> getItemInfoMap(String url) {
 		HashMap<String, Object> itemInfo = new HashMap<>();
 		url = urlChanger(url);
-		System.out.println("Changed url : " + url);
+		log.debug("Changed url : " + url);
 		try {
 			SelectorFactory factory = new SelectorFactory();
 			Selector selector = factory.createSelector(url);
-			System.out.println("selectorName : " + selector.getClass().getName());
+			log.debug("selectorName : " + selector.getClass().getName());
 			String priceSelector = selector.getPriceSelector();
 			String itemNameSelector = selector.getItemNameSelector();
 			Document doc = Jsoup.connect(url).get();
@@ -28,11 +31,11 @@ public class NaverCrawler {
 			Elements itemNames = doc.select(itemNameSelector);
 
 			for (Element itemName : itemNames) {
-				System.out.println("상품명 : " + itemName.html());
+				log.debug("상품명 : " + itemName.html());
 				itemInfo.put("itemName", itemName.html());
 			}
 			for (Element itemPrice : itemPrices) {
-				System.out.println("가격 : " + itemPrice.html());
+				log.debug("가격 : " + itemPrice.html());
 				itemInfo.put("itemPrice", itemPrice.html());
 			}
 		} catch (IOException e) {
@@ -40,11 +43,10 @@ public class NaverCrawler {
 		}
 		return itemInfo;
 	}
-	
+	//msearch일 경우 상품코드 추출하여 pcURL로 변경
 	public String urlChanger(String url) {
  		String nvMid = "";
  		int nvMidEndIdx = 0;
-		//msearch일 경우 상품코드 추출하여 pcURL로 변경
 		if (url.contains("msearch.shopping.naver")) {
 			StringBuilder sb = new StringBuilder();
 			//nvMid = 네이버 검색 상품코드 파라미터

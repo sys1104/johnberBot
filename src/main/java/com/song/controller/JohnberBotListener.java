@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -24,22 +25,25 @@ import com.pengrad.telegrambot.response.SendResponse;
 import com.song.crawler.NaverCrawler;
 import com.song.utils.CommonUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
-public class MyAmazingBot extends TelegramLongPollingBot {
+@Slf4j
+public class JohnberBotListener extends TelegramLongPollingBot {
 	private String chatId;
     @Override
     public void onUpdateReceived(Update arg0) {
         // TODO
-//        System.out.println(arg0.getMessage().getFrom().getId()); //get ID 는 user id
-    	System.out.println(arg0.getMessage().getFrom().getLastName()); //get ID 는 user id
-        System.out.println(arg0.getMessage().getFrom().getFirstName()); //get ID 는 user id
-        System.out.println(arg0.getMessage().getChatId());  // 채팅방의 ID
-        System.out.println(arg0.getMessage().getText());  // 받은 TEXT
+//        log.debug(arg0.getMessage().getFrom().getId()); //get ID 는 user id
+    	log.debug(arg0.getMessage().getFrom().getLastName()); //get ID 는 user id
+        log.debug(arg0.getMessage().getFrom().getFirstName()); //get ID 는 user id
+        log.debug(arg0.getMessage().getChatId().toString());  // 채팅방의 ID
+        log.info(arg0.getMessage().getText());  // 받은 TEXT
         this.chatId = String.valueOf(arg0.getMessage().getChatId());
         String message = arg0.getMessage().getText();
         if ("/start".equals(message)) {
         	sendMessage("안녕하세요 존버봇입니다.\n @@@명령어 목록@@@ \n/등록 : 자동으로 사용자 등록\n/누구 : 나는누구? \n/찜하기 : 상품등록방법 안내\n"
-        			+ "/위시리스트 : 찜한 상품 목록 보기\n/탈퇴 : 탈퇴");
+        			+ "/위시리스트 : 찜한 상품 목록 보기\n/가격업데이트 : 가격변동확인(변동없으면 미발송)\n/탈퇴 : 탈퇴");
         } else if ("/찜하기".equals(message)) {
         	sendMessage("사용자 등록 후 네이버 쇼핑의 특정상품 URL을 입력하면 자동으로 원하는 상품이 등록됩니다.");
         } else if ("/누구".equals(message)) {
@@ -52,7 +56,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
     				try {
     					sendPost(chatId, "/regUser");
     				} catch (Exception e) {
-    					e.printStackTrace();
+    					log.debug(e.toString());
     				}
     				
     				sendMessage("사용자 등록완료되었습니다.");
@@ -87,7 +91,6 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 						sb.append("URL : ").append(jo.get("URL").getAsString()).append("\n");
 						sb.append("#################################\n");
 					}
-					
 				}
 
 				sendMessage(sb.toString());
@@ -96,6 +99,12 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+        } else if ("/가격업데이트".equals(message)) {
+        	try {
+        		sendPost(chatId, "/updatePrice");
+        	} catch (Exception e) {
+        		log.error(e.toString());
+        	}
         } else if (message.startsWith("http")) {
         	if ( !isRegistered() ) {
         		sendMessage("사용자 등록 후 상품 등록 가능합니다.");
@@ -117,10 +126,10 @@ public class MyAmazingBot extends TelegramLongPollingBot {
                 	
                 	try {
     					sendPostMap(itemInfoMap, "/regItem");
-    					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + CommonUtils.moneyCommaUtil(itemPrice));
+    					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + CommonUtils.addMoneyComma(itemPrice));
     				} catch (Exception e) {
     					e.printStackTrace();
-    				}           		
+    				}
             	} else {
             		sendMessage("상품정보 조회에 실패했습니다.");
             	}          	
@@ -128,7 +137,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
 
         }
         
-        //System.out.println(arg0.getMessage().getReplyToMessage().getText());  // bot이 물어 본 받은 TEXT 사용자    	
+        //log.debug(arg0.getMessage().getReplyToMessage().getText());  // bot이 물어 본 받은 TEXT 사용자    	
     }
 
     @Override
@@ -172,7 +181,7 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         String inputLine;
         while((inputLine = in.readLine()) != null) { // response 출력
         	rtnData = inputLine;
-            System.out.println(inputLine);
+            log.debug(inputLine);
         }
  
         in.close();
@@ -210,12 +219,12 @@ public class MyAmazingBot extends TelegramLongPollingBot {
         String inputLine;
         while((inputLine = in.readLine()) != null) { // response 출력
         	rtnData = inputLine;
-            System.out.println(inputLine);
+            log.debug(inputLine);
         }
  
         in.close();
         return rtnData;
-    }    
+    }
     public String sendMessage(String message) {
     	TelegramBot bot = new TelegramBot(getBotToken()); 
     	SendMessage request = new SendMessage(this.chatId, message)
@@ -226,10 +235,18 @@ public class MyAmazingBot extends TelegramLongPollingBot {
     	SendResponse sendResponse = bot.execute(request);
     	boolean ok = sendResponse.isOk();
     	Message responseMessage = sendResponse.message();
-    	//System.out.println( "responseMessage : " + responseMessage);
+    	//log.debug( "responseMessage : " + responseMessage);
     	return String.valueOf(ok);
     }
-
+    @Scheduled(cron = "0 0 9,19 * * *")
+    public void scheduler() {
+    	try {
+			sendPost("", "/updatePrice");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     public boolean isRegistered() {
     	try {
     		String rtnChatId = sendPost(this.chatId, "/getChatId");

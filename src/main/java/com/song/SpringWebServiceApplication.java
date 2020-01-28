@@ -8,21 +8,26 @@ import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import com.song.controller.MyAmazingBot;
+import com.song.controller.JohnberBotListener;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 //@MapperScan(value={"com.song.dao"})
 @SpringBootApplication
 @ComponentScan
 @EnableScheduling
+@Slf4j
 public class SpringWebServiceApplication {
 	
 	public static void main(String[] args) {
 	    ApiContextInitializer.init();
 	    TelegramBotsApi telegramBotsApi = new TelegramBotsApi();
-	    MyAmazingBot bot =  new MyAmazingBot();
+	    JohnberBotListener bot =  new JohnberBotListener();	    
+	    
         try {
             telegramBotsApi.registerBot(bot);
+            
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
