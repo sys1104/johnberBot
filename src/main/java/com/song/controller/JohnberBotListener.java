@@ -41,9 +41,18 @@ public class JohnberBotListener extends TelegramLongPollingBot {
         log.info(arg0.getMessage().getText());  // 받은 TEXT
         this.chatId = String.valueOf(arg0.getMessage().getChatId());
         String message = arg0.getMessage().getText();
+        StringBuffer command = new StringBuffer();
+        
+        command.append("@@@명령어 목록@@@\n")
+        			.append("/등록 : 자동으로 사용자 등록\n")
+        			.append("/누구 : 나는누구? \n")
+        			.append("/찜하기 : 상품등록방법 안내\n")
+        			.append("/위시리스트 : 찜한 상품 목록 보기\n")
+        			.append("/가격업데이트 : 가격변동확인(변동없으면 미발송)\n")
+        			.append("/탈퇴 : 탈퇴");
+        
         if ("/start".equals(message)) {
-        	sendMessage("안녕하세요 존버봇입니다.\n @@@명령어 목록@@@ \n/등록 : 자동으로 사용자 등록\n/누구 : 나는누구? \n/찜하기 : 상품등록방법 안내\n"
-        			+ "/위시리스트 : 찜한 상품 목록 보기\n/가격업데이트 : 가격변동확인(변동없으면 미발송)\n/탈퇴 : 탈퇴");
+        	sendMessage("안녕하세요 존버봇입니다.\n " + command.toString());
         } else if ("/찜하기".equals(message)) {
         	sendMessage("사용자 등록 후 네이버 쇼핑의 특정상품 URL을 입력하면 자동으로 원하는 상품이 등록됩니다.");
         } else if ("/누구".equals(message)) {
@@ -135,6 +144,8 @@ public class JohnberBotListener extends TelegramLongPollingBot {
             	}          	
         	}
 
+        } else {
+        	sendMessage("지원하지 않는 명령어입니다.\n" + command.toString());
         }
         
         //log.debug(arg0.getMessage().getReplyToMessage().getText());  // bot이 물어 본 받은 TEXT 사용자    	
