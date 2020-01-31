@@ -1,5 +1,6 @@
 package com.song.controller;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,7 +36,7 @@ public class CrawlingController {
 			chatId = service.getChatId(paramChatId);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.toString());
 		}
 		return chatId;
 	}
@@ -45,10 +46,10 @@ public class CrawlingController {
 		int result = -1;
 		try {
 			result = service.regUser(paramChatId);
-			log.debug(result +  "건 등록완료" );
+			log.info(result +  "건 등록완료" );
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.toString());
 		}
 	}
 	@RequestMapping("/delUser")
@@ -57,24 +58,28 @@ public class CrawlingController {
 		int result = -1;
 		try {
 			result = service.delUser(paramChatId);
-			log.debug(result +  "건 삭제완료" );
+			log.info(result +  "건 삭제완료" );
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	@RequestMapping("/regItem")
-	public void regItem(@RequestParam HashMap<String, String> paramMap) {
+	public String regItem(@RequestParam HashMap<String, String> paramMap) {
 		int result = -1;
+		String rtnMsg = "";
 		try {
 			result = service.regItem(paramMap);
-			log.debug(result +  "건 등록완료" );
+			log.info(result +  "건 등록완료" );
+			rtnMsg = result + "건 등록완료";
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.toString());
+			rtnMsg = e.getMessage(); 
 		}
+		return rtnMsg;
 	}
 	@RequestMapping("/getWishList")
+	@Cacheable(value="wishList")
 	public String getWishListAll(HttpServletRequest request) {
 		
 		String paramChatId = request.getParameter("chatId");
@@ -86,10 +91,9 @@ public class CrawlingController {
 			} else {
 				itemList = service.getWishListByID(paramChatId);
 			}
-			log.debug(itemList.size() +  "건 ");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.info(itemList.size() +  "건 ");
+		} catch (SQLException e) {
+			log.error(e.toString());
 		}
 		
 		Gson gson = new Gson();
@@ -110,17 +114,16 @@ public class CrawlingController {
 				wishList = service.getWishListByID(chatId);
 			}
 			updateList = service.getUpdateList(wishList);
-			log.debug( "업데이트 대상 리스트 : " + updateList.size() +  "건 " );
+			log.info( "업데이트 대상 리스트 : " + updateList.size() +  "건 " );
 			if (updateList.size() <= 0) {
-				log.debug("가격 변동 상품 없음");
+				log.info("가격 변동 상품 없음");
 			} else {
 				for (HashMap<String, Object> map : updateList) {
-					log.debug(service.updatePrice(map) + "건 업데이트 완료");
+					log.info(service.updatePrice(map) + "건 업데이트 완료");
 				}
-			}			
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			log.error(e.toString());
 		}
 
 	}

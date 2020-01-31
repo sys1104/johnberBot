@@ -2,6 +2,7 @@ package com.song;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -17,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @SpringBootApplication
 @ComponentScan
 @EnableScheduling
+@EnableCaching
 @Slf4j
 public class SpringWebServiceApplication {
 	
@@ -29,7 +31,7 @@ public class SpringWebServiceApplication {
             telegramBotsApi.registerBot(bot);
             
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error(e.toString());
         }
 		SpringApplication.run(SpringWebServiceApplication.class, args);
 	}
