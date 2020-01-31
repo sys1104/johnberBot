@@ -18,8 +18,8 @@ public class NaverCrawler {
 	
 	public HashMap<String, Object> getItemInfoMap(String url) {
 		HashMap<String, Object> itemInfo = new HashMap<>();
-		url = urlChanger(url);
-		log.debug("Changed url : " + url);
+		url = mUrlToPcUrl(url);
+		log.debug("PC url : " + url);
 		try {
 			SelectorFactory factory = new SelectorFactory();
 			Selector selector = factory.createSelector(url);
@@ -38,13 +38,16 @@ public class NaverCrawler {
 				log.debug("가격 : " + itemPrice.html());
 				itemInfo.put("itemPrice", itemPrice.html());
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			log.error(e.getMessage());
+			throw e;
+		} catch (IOException ie) {
+			log.error(ie.toString());
 		}
 		return itemInfo;
 	}
 	//msearch일 경우 상품코드 추출하여 pcURL로 변경
-	public String urlChanger(String url) {
+	public String mUrlToPcUrl(String url) {
  		String nvMid = "";
  		int nvMidEndIdx = 0;
 		if (url.contains("msearch.shopping.naver")) {
@@ -64,7 +67,6 @@ public class NaverCrawler {
 			}
 			
 			nvMid = url.substring(nvMidStartIdx, nvMidEndIdx);
-			
 			url = "https://search.shopping.naver.com/detail/detail.nhn?nv_mid=";
 			sb.append(url);
 			sb.append(nvMid);
