@@ -16,6 +16,8 @@ public interface JohnBerDao {
 	
 	List<HashMap<String, Object>> getWishListAll();
 	
+	int getWishListCntByID(String chatId);
+	
 	List<HashMap<String, Object>> getWishListByID(String chatId);
 	
 	int regItem(HashMap<String, String> map);

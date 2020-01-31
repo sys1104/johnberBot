@@ -19,7 +19,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.model.Message;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.model.request.Keyboard;
+import com.pengrad.telegrambot.model.request.KeyboardButton;
 import com.pengrad.telegrambot.model.request.ParseMode;
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import com.song.crawler.NaverCrawler;
@@ -42,23 +47,20 @@ public class JohnberBotListener extends TelegramLongPollingBot {
         this.chatId = String.valueOf(arg0.getMessage().getChatId());
         String message = arg0.getMessage().getText();
         StringBuffer command = new StringBuffer();
+        StringBuffer hello = new StringBuffer("\"안녕하세요 존버봇입니다.\\n \"");
         
         command.append("@@@명령어 목록@@@\n")
         			.append("/등록 : 자동으로 사용자 등록\n")
-        			.append("/누구 : 나는누구? \n")
-        			.append("/찜하기 : 상품등록방법 안내\n")
-        			.append("/위시리스트 : 찜한 상품 목록 보기\n")
-        			.append("/가격업데이트 : 가격변동확인(변동없으면 미발송)\n")
+        			.append("/사용법 : 사용방법 안내\n")
+        			.append("/상품목록 : 찜한 상품 목록 보기\n")
+        			.append("/가격갱신 : 가격변동확인(변동없으면 미발송)\n")
         			.append("/탈퇴 : 탈퇴");
         
         if ("/start".equals(message)) {
-        	sendMessage("안녕하세요 존버봇입니다.\n " + command.toString());
-        } else if ("/찜하기".equals(message)) {
+        	sendMessage(hello.append(command).toString());
+        } else if ("/사용법".equals(message)) {
         	sendMessage("사용자 등록 후 네이버 쇼핑의 특정상품 URL을 입력하면 자동으로 원하는 상품이 등록됩니다.");
-        } else if ("/누구".equals(message)) {
-        	sendMessage("@존버봇 - 가격 변동 알리미 ");
         } else if ("/등록".equals(message)) {
-        	
     			if (isRegistered()) {
     				sendMessage("이미 등록된 사용자입니다.");
     			} else {
@@ -67,7 +69,6 @@ public class JohnberBotListener extends TelegramLongPollingBot {
     				} catch (Exception e) {
     					log.debug(e.toString());
     				}
-    				
     				sendMessage("사용자 등록완료되었습니다.");
     			}
         } else if ("/탈퇴".equals(message)) {
@@ -81,11 +82,12 @@ public class JohnberBotListener extends TelegramLongPollingBot {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-        } else if ("/위시리스트".equals(message)) {
+        } else if ("/상품목록".equals(message)) {
         	try {
 				String wishListJson = sendPost(chatId, "/getWishList");
 				StringBuffer sb = new StringBuffer();
-				
+				String tagUrl = "";
+				String itemPrice = "";
 				if (wishListJson.length() <= 0) {
 					sb.append("등록된 상품이 없습니다");
 				} else {
@@ -95,10 +97,12 @@ public class JohnberBotListener extends TelegramLongPollingBot {
 					
 					for ( int i = 0; i < jsonArray.size(); i++) {
 						JsonObject jo = (JsonObject) jsonArray.get(i);
+						itemPrice = CommonUtils.addMoneyComma(jo.get("ITEM_PRICE").getAsString());
+						tagUrl = CommonUtils.rawUrlToATag(jo.get("URL").getAsString());
 						sb.append("상품명 : ").append(jo.get("ITEM_NAME").getAsString()).append("\n");
-						sb.append("가격 : ").append(jo.get("ITEM_PRICE").getAsString()).append("\n");
-						sb.append("URL : ").append(jo.get("URL").getAsString()).append("\n");
-						sb.append("#################################\n");
+						sb.append("가격 : ").append(itemPrice).append("\n");
+						sb.append("URL : ").append(tagUrl).append("\n");
+						sb.append("=====================================\n");
 					}
 				}
 
@@ -108,7 +112,7 @@ public class JohnberBotListener extends TelegramLongPollingBot {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-        } else if ("/가격업데이트".equals(message)) {
+        } else if ("/가격갱신".equals(message)) {
         	try {
         		sendPost(chatId, "/updatePrice");
         	} catch (Exception e) {
@@ -118,37 +122,38 @@ public class JohnberBotListener extends TelegramLongPollingBot {
         	if ( !isRegistered() ) {
         		sendMessage("사용자 등록 후 상품 등록 가능합니다.");
         	} else {
-            	Map<String, Object> itemInfoMap = new HashMap<>();
-            	
-            	NaverCrawler naverCrawler = new NaverCrawler();
-            	
-            	String url = message;
-            	itemInfoMap = naverCrawler.getItemInfoMap(url);
-            	if (itemInfoMap.size() > 0) {
-                	String itemPrice = itemInfoMap.get("itemPrice").toString();
-                	itemPrice = itemPrice.replace(",","");
-                	itemInfoMap.remove("itemPrice");
-                	itemInfoMap.put("itemPrice", itemPrice);
-                	itemInfoMap.put("chatId", this.chatId);
-                	itemInfoMap.put("url", url);
-                	String itemName = itemInfoMap.get("itemName").toString();
-                	
-                	try {
+        		try {
+	            	Map<String, Object> itemInfoMap = new HashMap<>();
+	            	NaverCrawler naverCrawler = new NaverCrawler();
+	            	String url = message;
+                	itemInfoMap = naverCrawler.getItemInfoMap(url);
+                	if (itemInfoMap.size() > 0) {
+                    	String itemPrice = itemInfoMap.get("itemPrice").toString();
+                    	itemPrice = itemPrice.replace(",","");
+                    	itemInfoMap.remove("itemPrice");
+                    	itemInfoMap.put("itemPrice", itemPrice);
+                    	itemInfoMap.put("chatId", this.chatId);
+                    	itemInfoMap.put("url", url);
+                    	String itemName = itemInfoMap.get("itemName").toString();
     					sendPostMap(itemInfoMap, "/regItem");
     					sendMessage("다음과 같은 상품이 등록되었습니다. \n" + "상품명 : " + itemName + "\n최저가 : " + CommonUtils.addMoneyComma(itemPrice));
-    				} catch (Exception e) {
-    					e.printStackTrace();
-    				}
-            	} else {
-            		sendMessage("상품정보 조회에 실패했습니다.");
-            	}          	
+                	} else {
+                		sendMessage("상품정보 조회에 실패했습니다.");
+                	}          	         		
+            	} catch (IllegalArgumentException iae) {
+            		sendMessage(iae.getMessage());
+            		log.error( "URL = " + message + "에러메시지 : " + iae.getMessage());
+            	} catch (Exception e) {
+            		sendMessage("상품등록 도중 에러가 발생하였습니다. 개발자에게 문의하세요.");
+            		log.error(e.toString());
+            	}
         	}
-
-        } else {
+        } else if ("/test".equals(message)) {
+        	sendMessage("<a href=\"http://jsonobject.com\">link</a>");
+    	} else {
         	sendMessage("지원하지 않는 명령어입니다.\n" + command.toString());
         }
-        
-        //log.debug(arg0.getMessage().getReplyToMessage().getText());  // bot이 물어 본 받은 TEXT 사용자    	
+        //log.debug(arg0.getMessage().getReplyToMessage().getText());  // bot이 물어 본 받은 TEXT 사용자
     }
 
     @Override
@@ -237,16 +242,36 @@ public class JohnberBotListener extends TelegramLongPollingBot {
         return rtnData;
     }
     public String sendMessage(String message) {
-    	TelegramBot bot = new TelegramBot(getBotToken()); 
+    	TelegramBot bot = new TelegramBot(getBotToken());
+
+    	InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(
+    	        new InlineKeyboardButton[] {
+    	                new InlineKeyboardButton("test1").url("www.google.com"),
+    	                new InlineKeyboardButton("test2").callbackData("callback_data"),
+    	                new InlineKeyboardButton("test3!").switchInlineQuery("switch_inline_query")
+    	        });    	
+
+    	Keyboard keyboard = new ReplyKeyboardMarkup(
+    	        new KeyboardButton[] {
+    	                new KeyboardButton("/등록"),
+    	                new KeyboardButton("/사용법"),
+    	                new KeyboardButton("/상품목록"),
+    	                new KeyboardButton("/가격갱신"),
+    	        }
+    	).resizeKeyboard(true);            	
+    	
+    	
     	SendMessage request = new SendMessage(this.chatId, message)
     	        .parseMode(ParseMode.HTML)
     	        .disableWebPagePreview(true)
-    	        .disableNotification(false);
+    	        .disableNotification(false)
+    	        .replyMarkup(keyboard);                                 
 
     	SendResponse sendResponse = bot.execute(request);
     	boolean ok = sendResponse.isOk();
     	Message responseMessage = sendResponse.message();
     	//log.debug( "responseMessage : " + responseMessage);
+    	
     	return String.valueOf(ok);
     }
     @Scheduled(cron = "0 0 9,19 * * *")

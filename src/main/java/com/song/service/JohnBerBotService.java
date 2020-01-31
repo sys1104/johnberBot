@@ -1,5 +1,6 @@
 package com.song.service;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,36 +29,48 @@ public class JohnBerBotService {
 	private JohnBerDao dao;
 	private NaverCrawler crawler = new NaverCrawler();
 
-	public String getChatId(String chatId) throws Exception {
+	final int REG_ITEM_LIMIT = 5;
+	
+	public String getChatId(String chatId) throws SQLException {
 		log.debug("Service.getChatId");
 		return dao.getChatId(chatId);
 	}
-	public int regUser(String chatId) throws Exception {
+	public int regUser(String chatId) throws SQLException {
 		return dao.regUser(chatId);
 	}
 
-	public int delUser(String chatId) throws Exception {
+	public int delUser(String chatId) throws SQLException {
 		return dao.delUser(chatId);
 	}
 
-	public int regItem(HashMap<String, String> map) throws Exception {
+	public int regItem(HashMap<String, String> map) throws Exception, SQLException {
+		int regItemCnt = getWishListCntByID(map.get("chatId"));
+		
+		if (regItemCnt > REG_ITEM_LIMIT) {
+			throw new Exception("상품 등록은 최대 " + String.valueOf(REG_ITEM_LIMIT) + "개 까지만 가능합니다.");
+		}
 		return dao.regItem(map);
 	}
 
-	public int getPrice(HashMap<String, String> map) throws Exception {
+	public int getPrice(HashMap<String, String> map) throws SQLException {
 		return dao.getPrice(map);
 	}
 
-	public List<HashMap<String, Object>> getWishListAll() throws Exception {
+	public List<HashMap<String, Object>> getWishListAll() throws SQLException {
 		return dao.getWishListAll();
 	}
-
-	public List<HashMap<String, Object>> getWishListByID(String chatId) throws Exception {
+	
+	
+	public int getWishListCntByID(String chatId) throws SQLException {
+		return dao.getWishListCntByID(chatId);
+	}
+	
+	public List<HashMap<String, Object>> getWishListByID(String chatId) throws SQLException {
 		return dao.getWishListByID(chatId);
 	}
 	
 	// 가격변동 시 Update
-	public List<HashMap<String, Object>> getUpdateList(List<HashMap<String, Object>> wishList) throws Exception {
+	public List<HashMap<String, Object>> getUpdateList(List<HashMap<String, Object>> wishList) throws SQLException {
 		
 		List<HashMap<String, Object>> updateList = new ArrayList<HashMap<String, Object>>();
 
@@ -85,7 +98,7 @@ public class JohnBerBotService {
 	
 	
 	// 가격변동 시 Update 및 메시지 발송
-	public int updatePrice(HashMap<String, Object> map) throws Exception {
+	public int updatePrice(HashMap<String, Object> map) throws SQLException {
 		StringBuffer sb = new StringBuffer();
 		String itemPrice = CommonUtils.removeComma(map.get("itemPrice").toString());
 		String oldPrice = map.get("oldPrice").toString();
